@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ynogle.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="利用 crontabs 实现定时任务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用 crontabs 实现定时任务">
+<meta property="og:url" content="https://ynogle.github.io/2019/04/09/%E5%88%A9%E7%94%A8%20crontabs%20%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="利用 crontabs 实现定时任务">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-04-09T09:59:12.000Z">
+<meta property="article:modified_time" content="2020-08-23T10:50:36.000Z">
+<meta property="article:author" content="Y">
+<meta property="article:tag" content="Centos">
+<meta property="article:tag" content="Nginx,">
+<meta property="article:tag" content="crontab">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ynogle.github.io/2019/04/09/%E5%88%A9%E7%94%A8%20crontabs%20%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>利用 crontabs 实现定时任务 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="rss fa-fw"></i>rss</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ynogle.github.io/2019/04/09/%E5%88%A9%E7%94%A8%20crontabs%20%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Y">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用 crontabs 实现定时任务
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-04-09 17:59:12" itemprop="dateCreated datePublished" datetime="2019-04-09T17:59:12+08:00">2019-04-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-23 18:50:36" itemprop="dateModified" datetime="2020-08-23T18:50:36+08:00">2020-08-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>利用 crontabs 实现定时任务<span id="more"></span></p>
+<hr>
+<h3 id="Debain-环境使用："><a href="#Debain-环境使用：" class="headerlink" title="Debain 环境使用："></a>Debain 环境使用：</h3><h4 id="安装-php-curl（php-脚本需要，非必须）"><a href="#安装-php-curl（php-脚本需要，非必须）" class="headerlink" title="安装 php-curl（php 脚本需要，非必须）"></a>安装 php-curl（php 脚本需要，非必须）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> apt-get install php php-curl</span><br></pre></td></tr></table></figure>
+
+<h4 id="编辑-crontab-文件："><a href="#编辑-crontab-文件：" class="headerlink" title="编辑 crontab 文件："></a>编辑 crontab 文件：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ crontab -e</span><br></pre></td></tr></table></figure>
+
+<h4 id="然后按照以下规则填写要执行的任务："><a href="#然后按照以下规则填写要执行的任务：" class="headerlink" title="然后按照以下规则填写要执行的任务："></a>然后按照以下规则填写要执行的任务：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Example of job definition:</span></span><br><span class="line"><span class="comment"># .---------------- minute (0 - 59)</span></span><br><span class="line"><span class="comment"># |  .------------- hour (0 - 23)</span></span><br><span class="line"><span class="comment"># |  |  .---------- day of month (1 - 31)</span></span><br><span class="line"><span class="comment"># |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...</span></span><br><span class="line"><span class="comment"># |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,w        ed,thu,fri,sat</span></span><br><span class="line"><span class="comment"># |  |  |  |  |</span></span><br><span class="line"><span class="comment"># *  *  *  *  *   user-name  command to be executed</span></span><br><span class="line">  分 时 天  月 星期 执行的用户   执行的命令</span><br></pre></td></tr></table></figure>
+
+<h4 id="最后，重启-crontab："><a href="#最后，重启-crontab：" class="headerlink" title="最后，重启 crontab："></a>最后，重启 crontab：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ service cron restart</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Centos-环境使用："><a href="#Centos-环境使用：" class="headerlink" title="Centos 环境使用："></a>Centos 环境使用：</h3><h4 id="安装-crontabs（已安装的略过）"><a href="#安装-crontabs（已安装的略过）" class="headerlink" title="安装 crontabs（已安装的略过）"></a>安装 crontabs（已安装的略过）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install crontabs</span><br></pre></td></tr></table></figure>
+
+<h4 id="编辑任务列表"><a href="#编辑任务列表" class="headerlink" title="编辑任务列表"></a>编辑任务列表</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vi /etc/crontab</span><br></pre></td></tr></table></figure>
+
+<h4 id="加载任务-使之生效"><a href="#加载任务-使之生效" class="headerlink" title="加载任务,使之生效"></a>加载任务,使之生效</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ crontab /etc/crontab</span><br></pre></td></tr></table></figure>
+
+<h4 id="查看任务"><a href="#查看任务" class="headerlink" title="查看任务"></a>查看任务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ crontab -l</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">设为开机启动</span><br><span class="line">$ systemctl <span class="built_in">enable</span> crond</span><br><span class="line"></span><br><span class="line">启动crond服务</span><br><span class="line">$ systemctl start crond</span><br><span class="line"></span><br><span class="line">查看状态</span><br><span class="line">$ systemctl status crond</span><br></pre></td></tr></table></figure>
+
+<h4 id="其他高级用法请自行搜索。"><a href="#其他高级用法请自行搜索。" class="headerlink" title="其他高级用法请自行搜索。"></a>其他高级用法请自行搜索。</h4>
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Centos/" rel="tag"># Centos</a>
+              <a href="/tags/Nginx/" rel="tag"># Nginx,</a>
+              <a href="/tags/crontab/" rel="tag"># crontab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/21/%E4%BC%98%E5%8C%96%20Android%20Studio%20%E6%9E%84%E5%BB%BA%E9%80%9F%E5%BA%A6/" rel="prev" title="优化 Android Studio 构建速度">
+      <i class="fa fa-chevron-left"></i> 优化 Android Studio 构建速度
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/05/28/Debian%20%E4%B8%8B%20Shadowsocks-libev%20%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" rel="next" title="转秋水逸冰 Debian 下 libev 一键安装脚本">
+      转秋水逸冰 Debian 下 libev 一键安装脚本 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Debain-%E7%8E%AF%E5%A2%83%E4%BD%BF%E7%94%A8%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">Debain 环境使用：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-php-curl%EF%BC%88php-%E8%84%9A%E6%9C%AC%E9%9C%80%E8%A6%81%EF%BC%8C%E9%9D%9E%E5%BF%85%E9%A1%BB%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">安装 php-curl（php 脚本需要，非必须）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%BE%91-crontab-%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="nav-number">1.2.</span> <span class="nav-text">编辑 crontab 文件：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%84%B6%E5%90%8E%E6%8C%89%E7%85%A7%E4%BB%A5%E4%B8%8B%E8%A7%84%E5%88%99%E5%A1%AB%E5%86%99%E8%A6%81%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%BB%E5%8A%A1%EF%BC%9A"><span class="nav-number">1.3.</span> <span class="nav-text">然后按照以下规则填写要执行的任务：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%EF%BC%8C%E9%87%8D%E5%90%AF-crontab%EF%BC%9A"><span class="nav-number">1.4.</span> <span class="nav-text">最后，重启 crontab：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Centos-%E7%8E%AF%E5%A2%83%E4%BD%BF%E7%94%A8%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">Centos 环境使用：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-crontabs%EF%BC%88%E5%B7%B2%E5%AE%89%E8%A3%85%E7%9A%84%E7%95%A5%E8%BF%87%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">安装 crontabs（已安装的略过）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%BE%91%E4%BB%BB%E5%8A%A1%E5%88%97%E8%A1%A8"><span class="nav-number">2.2.</span> <span class="nav-text">编辑任务列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E4%BB%BB%E5%8A%A1-%E4%BD%BF%E4%B9%8B%E7%94%9F%E6%95%88"><span class="nav-number">2.3.</span> <span class="nav-text">加载任务,使之生效</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E4%BB%BB%E5%8A%A1"><span class="nav-number">2.4.</span> <span class="nav-text">查看任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95%E8%AF%B7%E8%87%AA%E8%A1%8C%E6%90%9C%E7%B4%A2%E3%80%82"><span class="nav-number">2.5.</span> <span class="nav-text">其他高级用法请自行搜索。</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Y</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Y</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
